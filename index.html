@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with Sydney</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <style>
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 8px;
+            margin-bottom: 2px;
+            background-color: #f3f3f3;
+        }
+
+        button {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <ul id="messages"></ul>
+    <input id="m" autocomplete="off" />
+    <button onclick="sendMessage('creative')">Send Creative</button>
+    <button onclick="sendMessage('balanced')">Send Balanced</button>
+    <button onclick="sendMessage('precise')">Send Precise</button>
+    <script type="text/javascript">
+        var socket = io();
+        function sendMessage(style) {
+            var messageInput = document.getElementById('m');
+            socket.emit('send_message', { message: messageInput.value, style: style });
+            var item = document.createElement('li');
+            item.textContent = 'You: ' + messageInput.value;
+            document.getElementById('messages').appendChild(item);
+            messageInput.value = '';
+        }
+        socket.on('receive_message', function (data) {
+            var messages = document.getElementById('messages');
+            var responseItem = document.createElement('li');
+            responseItem.textContent = 'Sydney: ' + data.message + ' (Response in ' + Math.round(data.elapsed_time * 1000) + ' ms)';
+            messages.appendChild(responseItem);
+            window.scrollTo(0, document.body.scrollHeight);
+        });
+    </script>
+</body>
+</html>
